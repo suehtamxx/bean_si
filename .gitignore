@@ -1,0 +1,43 @@
+# ── Ambiente virtual ──────────────────────────
+venv/
+.venv/
+env/
+
+# ── Dataset (muito grande para o Git) ─────────
+dataverse_files/
+
+# ── Modelos treinados (arquivos pesados) ───────
+*.pth
+*.pt
+*.h5
+*.pkl
+
+# ── Cache Python ───────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Cache HuggingFace / datasets ───────────────
+~/.cache/huggingface/
+.cache/
+
+# ── Jupyter Notebooks checkpoints ─────────────
+.ipynb_checkpoints/
+
+# ── IDEs ───────────────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+
+# ── Sistema Operacional ────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs e temporários ────────────────────────
+*.log
+*.tmp
+runs/
+outputs/
