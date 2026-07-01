@@ -87,10 +87,11 @@ Saída: 4 classes
 |-----------|-------|
 | Otimizador | Adam (lr=0.001) |
 | Loss | CrossEntropyLoss |
-| Épocas | 10 |
+| Épocas | 100 (early stopping patience=10) |
 | Batch size | 32 |
 | Scheduler | StepLR (γ=0.5 a cada 5 épocas) |
 | Imagem de entrada | 224×224 px |
+| Aceleração | **GPU (CUDA)** — detectada automaticamente via `torch.cuda.is_available()` |
 
 ### Data Augmentation (Treino)
 - Flip horizontal e vertical aleatórios  
@@ -103,8 +104,9 @@ Saída: 4 classes
 
 ### 1. Pré-requisitos
 
-- Python **3.10–3.14**
+- Python **3.10+**
 - pip
+- **GPU NVIDIA com CUDA 12.1+** (necessária para o treinamento; o script detecta automaticamente e usa a GPU se disponível)
 
 ---
 
@@ -119,15 +121,18 @@ python -m venv venv
 
 ### 3. Instalar dependências
 
+> [!IMPORTANT]
+> Este projeto utiliza **GPU NVIDIA** para treinamento. Instale a versão com suporte a CUDA:
+
 ```powershell
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ```powershell
 pip install datasets pillow numpy
 ```
 
-> Se tiver GPU NVIDIA, substitua `cpu` por `cu121` na URL para usar CUDA.
+> Caso não tenha GPU disponível, substitua `cu121` por `cpu` na URL acima. O treinamento será significativamente mais lento.
 
 ---
 
@@ -158,11 +163,12 @@ python main.py
 ```
 
 O script irá:
-1. Carregar as imagens do dataset local
-2. Aplicar pré-processamento e data augmentation
-3. Treinar a CNN por 10 épocas
-4. Salvar o melhor modelo em `bean_disease_cnn_model_best.pth`
-5. Avaliar no conjunto de teste e exibir a acurácia final
+1. Detectar automaticamente a GPU disponível (`torch.cuda.is_available()`)
+2. Carregar as imagens do dataset local
+3. Aplicar pré-processamento e data augmentation
+4. Treinar a CNN por até 100 épocas (com early stopping, patience=10)
+5. Salvar o melhor modelo em `bean_disease_cnn_model_best.pth`
+6. Avaliar no conjunto de teste e exibir a acurácia final
 
 ---
 
@@ -197,10 +203,11 @@ trabalho_si_final/
 
 | Tecnologia | Versão | Uso |
 |-----------|--------|-----|
-| Python | 3.14 | Linguagem principal |
-| PyTorch | 2.12 | Framework de Deep Learning |
-| torchvision | 0.27 | Carregamento de imagens e transforms |
-| Pillow | 12.x | Manipulação de imagens |
+| Python | 3.10+ | Linguagem principal |
+| PyTorch | 2.x | Framework de Deep Learning (com suporte a CUDA) |
+| torchvision | 0.x | Carregamento de imagens e transforms |
+| CUDA | 12.1+ | Aceleração por GPU NVIDIA |
+| Pillow | latest | Manipulação de imagens |
 | NumPy | 2.x | Operações numéricas |
 
 ---
