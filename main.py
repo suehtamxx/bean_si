@@ -1,3 +1,4 @@
+import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,8 +9,9 @@ import torchvision.datasets as datasets
 
 DATA_DIR    = r"dataverse_files\Classification\Classification"
 IMG_SIZE    = 224
-BATCH_SIZE  = 32
-EPOCHS      = 10
+BATCH_SIZE         = 32
+EPOCHS             = 100
+EARLY_STOP_PATIENCE = 10
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Usando dispositivo: {DEVICE}")
@@ -44,9 +46,11 @@ print(f"Treino:    {len(train_ds):>5} imagens")
 print(f"Validação: {len(val_ds):>5} imagens")
 print(f"Teste:     {len(test_ds):>5} imagens")
 
-train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True,  num_workers=0)
-val_loader   = DataLoader(val_ds,   batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-test_loader  = DataLoader(test_ds,  batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+_pin     = DEVICE.type == "cuda"
+_workers = 0 if sys.platform == "win32" else 2
+train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True,  num_workers=_workers, pin_memory=_pin)
+val_loader   = DataLoader(val_ds,   batch_size=BATCH_SIZE, shuffle=False, num_workers=_workers, pin_memory=_pin)
+test_loader  = DataLoader(test_ds,  batch_size=BATCH_SIZE, shuffle=False, num_workers=_workers, pin_memory=_pin)
 
 
 class BeanCNN(nn.Module):
@@ -135,7 +139,9 @@ print("Iniciando o treinamento...")
 print(f"{'Época':>6} | {'Loss Treino':>11} | {'Acc Treino':>10} | {'Loss Val':>8} | {'Acc Val':>7}")
 print("-" * 60)
 
-best_val_acc = 0.0
+best_val_acc     = 0.0
+early_stop_count = 0
+
 for epoch in range(1, EPOCHS + 1):
     train_loss, train_acc = train_epoch(model, train_loader)
     val_loss,   val_acc   = eval_epoch(model, val_loader)
@@ -146,11 +152,19 @@ for epoch in range(1, EPOCHS + 1):
 
     # Salva o melhor modelo
     if val_acc > best_val_acc:
-        best_val_acc = val_acc
+        best_val_acc     = val_acc
+        early_stop_count = 0
         torch.save(model.state_dict(), "bean_disease_cnn_model_best.pth")
+        print(f"         → Novo melhor modelo salvo! (val_acc={best_val_acc*100:.2f}%)")
+    else:
+        early_stop_count += 1
+        print(f"         → Sem melhora ({early_stop_count}/{EARLY_STOP_PATIENCE})")
+        if early_stop_count >= EARLY_STOP_PATIENCE:
+            print(f"\nEarly stopping ativado na época {epoch}. Melhor val_acc: {best_val_acc*100:.2f}%")
+            break
 
 
-model.load_state_dict(torch.load("bean_disease_cnn_model_best.pth"))
+model.load_state_dict(torch.load("bean_disease_cnn_model_best.pth", map_location=DEVICE, weights_only=True))
 test_loss, test_acc = eval_epoch(model, test_loader)
 print(f"\nResultado no conjunto de TESTE → Loss: {test_loss:.4f} | Acurácia: {test_acc*100:.2f}%")
 

@@ -47,6 +47,13 @@ dataverse_files/
         └── test/
 ```
 
+### Exemplos do Dataset
+
+A pasta [`dataset_examples/`](./dataset_examples/) contém **apenas 10 imagens por classe por split** para fins de demonstração e referência no repositório. Ela **não representa o dataset completo** e não deve ser usada para treinar o modelo.
+
+Para acessar a base de dados real e completa, utilize o link abaixo:  
+🔗 **[Harvard Dataverse — Bean Disease Dataset](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TCKVEW)**
+
 ---
 
 ## Arquitetura do Modelo
@@ -126,8 +133,10 @@ pip install datasets pillow numpy
 
 ### 4. Baixar o dataset
 
-Faça o download do dataset em:  
-🔗 https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LJCUXG
+Faça o download do dataset completo em:  
+🔗 **[Harvard Dataverse — Bean Disease Dataset](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TCKVEW)**
+
+> A pasta `dataset_examples/` contém apenas amostras para referência. Para treinar o modelo, é necessário o dataset completo.
 
 Extraia o arquivo e coloque a pasta `dataverse_files/` dentro do projeto:
 
@@ -135,6 +144,7 @@ Extraia o arquivo e coloque a pasta `dataverse_files/` dentro do projeto:
 trabalho_si_final/
 ├── dataverse_files/
 │   └── Classification/
+├── dataset_examples/   # Apenas exemplos (não usar para treino)
 ├── main.py
 └── README.md
 ```
@@ -172,12 +182,13 @@ O script irá:
 
 ```
 trabalho_si_final/
-├── dataverse_files/          # Dataset local
-├── venv/                     # Ambiente virtual Python
-├── main.py                   # Script principal de treinamento
+├── dataverse_files/                    # Dataset completo (não versionado)
+├── dataset_examples/                   # Amostras de exemplo (10 imagens/classe)
+├── venv/                               # Ambiente virtual Python
+├── main.py                             # Script principal de treinamento
 ├── bean_disease_cnn_model.pth          # Modelo salvo (último)
 ├── bean_disease_cnn_model_best.pth     # Melhor modelo (por val acc)
-└── README.md                 # Este arquivo
+└── README.md                           # Este arquivo
 ```
 
 ---
